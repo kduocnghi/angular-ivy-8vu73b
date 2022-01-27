@@ -1,13 +1,13 @@
 import { error } from '@angular/compiler/src/util';
-import { Component, VERSION } from '@angular/core';
-import { from, of } from 'rxjs';
+import { AfterViewInit, Component, VERSION } from '@angular/core';
+import { from, fromEvent, of } from 'rxjs';
 
 @Component({
   selector: 'my-app',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
 })
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
   name = 'Angular ' + VERSION.major;
 
   postArray = [
@@ -16,7 +16,12 @@ export class AppComponent {
     { title: 'ducanh3', description: 'ducanh description 3' },
   ];
 
-  postArrayObserverble$ = of(this.postArray);
+  promise = new Promise((resolve, reject) => {
+    setTimeout(() => {resolve('resolve the data.sending data')}, 2000);
+  })
+
+  postArrayObserverble$ = from(this.postArray);
+  promiseObserverble$ = from(this.promise);
 
   constructor() {
     this.postArrayObserverble$.subscribe({
@@ -30,5 +35,30 @@ export class AppComponent {
         console.log('error');
       },
     });
+    this.promiseObserverble$.subscribe({
+      next: (data) => {
+        console.log(data);
+      },
+      complete: () => {
+        console.log('complete promise');
+      },
+      error: (err) => {
+        console.log('error');
+      },
+    });
+  }
+
+  ngAfterViewInit() {
+    fromEvent(document.getElementById('click-button'), 'click').subscribe({
+      next: (data) => {
+        console.log(data);
+      },
+      complete: () => {
+        console.log('complete promise');
+      },
+      error: (err) => {
+        console.log('error');
+      },
+    })
   }
 }
